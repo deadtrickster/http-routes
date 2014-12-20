@@ -194,7 +194,7 @@
                                                                                     (&optional "/" :sub-id)
                                                                                     (&optional "/" &rest :rest))))
   (assert (equalp (parse-route "/blog/*path") '("/blog/" &rest :path)))
-  ;;(assert (equalp (parse-route  "/client(/)(*path)") '("/client" (&optional "/") (&optional &rest path))))
+  (assert (equalp (parse-route "/client(/)*path") '("/client" (&optional "/") &rest :path)))
   (assert (equalp (parse-route "/forum/:|topic-title|-:topic-id") '("/forum/" :topic-title "-" :topic-id))))
 
 (defun route-variables (route)
@@ -228,10 +228,10 @@
     (assert (equalp (route-variables% "/orders/:order-id") '((:segment :order-id))))
     (assert (equalp (route-variables% "/orders/:order-id/type") '((:segment :order-id))))
     (assert (equalp (route-variables% "/control(/*path)") '((:multi-segment :path))))
-    (assert (equalp (route-variables% "/do/movers(/:mover-id)(/:tab)(/:sub-id)(/*rest)") '((:SEGMENT :MOVER-ID)
-                                                                                           (:SEGMENT :TAB)
-                                                                                           (:SEGMENT :SUB-ID)
-                                                                                           (:MULTI-SEGMENT :REST))))
+    (assert (equalp (route-variables% "/do/movers(/:mover-id)(/:tab)(/:sub-id)(/*rest)") '((:segment :MOVER-ID)
+                                                                                           (:segment :TAB)
+                                                                                           (:segment :SUB-ID)
+                                                                                           (:multi-segment :REST))))
     (assert (equalp (route-variables% "/blog/*path") '((:multi-segment :path))))
     (assert (equalp (route-variables% "/client(/)*path") '((:multi-segment :path))))))
 
