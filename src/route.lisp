@@ -5,10 +5,10 @@
 (defun create-params-wrapper (variables tag)
   (compile nil `(lambda (url matches)
                   (declare (ignorable url matches))
-                  (let ((parameters (make-hash-table)))
-                    ,(if variables
-                         `(block :validation
-                            (let ((validp t))
+                  (block :validation
+                    (let ((parameters (make-hash-table)))
+                      ,(if variables
+                           `(let ((validp t))
                               (loop for variable in ',variables
                                     for match in matches do
                                        (let ((matched-str (cond
@@ -27,8 +27,8 @@
                                                 (return))
                                               (setf (gethash name parameters) matched-str))))))
                               (unless validp
-                                (return-from :validation nil)))))
-                    (values ,tag parameters)))))
+                                (return-from :validation (values nil parameters)))))
+                      (values ,tag parameters))))))
 
 (defun add-route (route tag)
   (let* ((parsed-route (if (stringp route) (parse-route route) route))
