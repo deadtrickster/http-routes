@@ -4,7 +4,7 @@
   :maintainer "Ilya Khaprov <ilya.khaprov@publitechs.com>"
   :author "Ilya Khaprov <ilya.khaprov@publitechs.com>"
   :licence "MIT"
-  :depends-on (:alexandria :split-sequence)
+  :depends-on (:alexandria :split-sequence :collectors)
   :serial t
   :components ((:file "src/packages")
                (:file "src/matcher")
