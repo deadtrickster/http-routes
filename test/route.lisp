@@ -5,7 +5,7 @@
 (defmacro route-match (url tag parameters)
   `(multiple-value-bind (tag parameters)
        (http-routes.routes:try-match-url ,url)
-     (is-true (equalp (print tag) (print,tag)))
+     (is-true (equalp tag ,tag))
      (is-true (equalp parameters ,(alexandria:alist-hash-table parameters)))))
 
 (test (full-route-test :compile-at :definition-time)
