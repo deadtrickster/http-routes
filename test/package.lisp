@@ -15,3 +15,7 @@
 
 (def-suite :http-routes.parser
   :description "HTTP-ROUTES Parser tests")
+
+(def-suite :http-routes.route
+  :description "HTTP-ROUTES full cycle tests,
+from adding routes to matching and extracting variable values")
