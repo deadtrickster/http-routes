@@ -2,16 +2,19 @@
 
 (defpackage :http-routes.matcher
   (:use :cl :alexandria)
-  (:export :create-patterns-bag
-           :add-pattern
-           :remove-patter
-           :match-pattern))
+  (:export #:make-node
+           #:create-pattern
+           #:add-to-tree
+           #:match))
+
+(defpackage http-routes.parser
+  (:use :cl :alexandria)
+  (:export #:parse-route
+           #:route-variables
+           #:route-to-match-rules))
 
 (defpackage http-routes.routes
-  (:use :cl :alexandria :http-routes.matcher))
-
-(defpackage http-routes.router
-  (:use :cl :alexandria :http-routes.routes))
+  (:use :cl :alexandria :http-routes.parser :Http-routes.matcher))
 
 (defpackage http-routes.helpers
   (:use :cl :alexandria :split-sequence :parse-number))

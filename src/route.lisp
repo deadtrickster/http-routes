@@ -1,4 +1,4 @@
-(in-package :http-router.routes)
+(in-package :http-routes.routes)
 
 (defvar *routes*)
 
@@ -36,10 +36,10 @@
          (match-rules (route-to-match-rules parsed-route))
          (tag% (create-params-wrapper variables tag)))
     (loop for match-rule in match-rules
-          as match-pattern = (http-routes.matcher::create-pattern match-rule) do
-             (http-routes.matcher::add-to-tree *routes* match-pattern tag%))))
+          as match-pattern = (create-pattern match-rule) do
+             (add-to-tree *routes* match-pattern tag%))))
 
 (defun try-match-url (url)
-  (multiple-value-bind (matched tag index) (http-routes.matcher::match *routes* url)
+  (multiple-value-bind (matched tag index) (match *routes* url)
     (if (and matched tag)
         (funcall tag url index))))
