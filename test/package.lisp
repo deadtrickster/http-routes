@@ -3,9 +3,15 @@
 (defpackage :http-routes.test
   (:use :cl
         :alexandria
-        :stefil))
+        :5am))
 
 (in-package :http-routes.test)
 
-(defsuite* (http-routes-tests :in root-suite)
-    (run-child-tests))
+(def-suite :http-routes
+  :description "Main test suite for HTTP-ROUTES")
+
+(def-suite :http-routes.matcher
+  :description "HTTP-ROUTES Matcher tests")
+
+(def-suite :http-routes.parser
+  :description "HTTP-ROUTES Parser tests")

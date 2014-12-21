@@ -11,7 +11,7 @@
   (:use :cl :alexandria :http-routes.matcher))
 
 (defpackage http-routes.router
-  (:use :cl :alexandria :http-routes.routes
+  (:use :cl :alexandria :http-routes.routes))
 
 (defpackage http-routes.helpers
   (:use :cl :alexandria :split-sequence :parse-number))

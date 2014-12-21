@@ -1,4 +1,4 @@
-(in-package :http-router.routes)
+(in-package :http-routes.routes)
 
 ;;adopted from fast-http
 ;;#####
@@ -183,20 +183,6 @@
                      (return)))
                 :iteration-exit)))))
 
-
-(defun parse-route-test ()
-  (assert (equalp (parse-route "/orders") '("/orders")))
-  (assert (equalp (parse-route "/orders/:order-id") '("/orders/" :order-id)))
-  (assert (equalp (parse-route "/orders/:order-id/type") '("/orders/" :order-id "/type")))
-  (assert (equalp (parse-route "/control(/*path)") '("/control" (&optional "/" &rest :path))))
-  (assert (equalp (parse-route "/do/movers(/:mover-id)(/:tab)(/:sub-id)(/*rest)") '("/do/movers" (&optional "/" :mover-id)
-                                                                                    (&optional "/" :tab)
-                                                                                    (&optional "/" :sub-id)
-                                                                                    (&optional "/" &rest :rest))))
-  (assert (equalp (parse-route "/blog/*path") '("/blog/" &rest :path)))
-  (assert (equalp (parse-route "/client(/)*path") '("/client" (&optional "/") &rest :path)))
-  (assert (equalp (parse-route "/forum/:|topic-title|-:topic-id") '("/forum/" :topic-title "-" :topic-id))))
-
 (defun route-variables (route)
   (collectors:with-collector-output (add-variable)
     (let ((next-is-rest))
@@ -220,20 +206,6 @@
                       (let ((optional-part-var (route-variables (rest route-part))))
                         (when optional-part-var
                           (add-variable (first optional-part-var)))))))))))
-
-(defun route-variables-test ()
-  (flet ((route-variables% (string)
-           (route-variables (parse-route string))))
-    (assert (equalp (route-variables% "/orders") '()))
-    (assert (equalp (route-variables% "/orders/:order-id") '((:segment :order-id))))
-    (assert (equalp (route-variables% "/orders/:order-id/type") '((:segment :order-id))))
-    (assert (equalp (route-variables% "/control(/*path)") '((:multi-segment :path))))
-    (assert (equalp (route-variables% "/do/movers(/:mover-id)(/:tab)(/:sub-id)(/*rest)") '((:segment :MOVER-ID)
-                                                                                           (:segment :TAB)
-                                                                                           (:segment :SUB-ID)
-                                                                                           (:multi-segment :REST))))
-    (assert (equalp (route-variables% "/blog/*path") '((:multi-segment :path))))
-    (assert (equalp (route-variables% "/client(/)*path") '((:multi-segment :path))))))
 
 (defun route-to-match-rules (route)
   (let ((rules))
@@ -265,20 +237,3 @@
                       (add-rule-part (first optional-part) nil)))))
         (add-rule rule-parts)
         rules))))
-
-(defun route-to-match-rules-test ()
-  (flet ((route-to-match-rules% (route)
-           (route-to-match-rules (parse-route route))))
-    (assert (equalp (route-to-match-rules% "/orders") '(("/orders"))))
-    (assert (equalp (route-to-match-rules% "/orders/:order-id") '(("/orders/" :wildcard))))
-    (assert (equalp (route-to-match-rules% "/orders/:order-id/type") '(("/orders/" :wildcard "/type"))))
-    (assert (equalp (route-to-match-rules% "/control(/*path)") '(("/control") ("/control" "/" :wildcard))))
-    (assert (equalp (route-to-match-rules% "/blog/*path") '(("/blog/" :wildcard))))
-    (assert (equalp (route-to-match-rules% "/do/movers(/:mover-id)(/:tab)(/:sub-id)(/*rest)")
-                    `(("/do/movers")
-                      ("/do/movers" "/" :wildcard)
-                      ("/do/movers" "/" :wildcard "/" :wildcard)
-                      ("/do/movers" "/" :wildcard "/" :wildcard "/" :wildcard)
-                      ("/do/movers" "/" :wildcard "/" :wildcard "/" :wildcard "/" :wildcard))))
-    (assert (equalp (route-to-match-rules% "/orders/(id):order-id") '(("/orders/" :wildcard)
-                                                                      ("/orders/" "id" :wildcard))))))
