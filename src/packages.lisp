@@ -24,4 +24,4 @@
   (:use :cl :alexandria :split-sequence :parse-number))
 
 (defpackage http-routes
-  (:use :cl :alexandria :http-routes.router))
+  (:use :cl :alexandria :http-routes.routes))

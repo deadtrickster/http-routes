@@ -7,8 +7,6 @@
   :depends-on (:fiveam :http-routes)
   :serial t
   :components ((:file "test/package")
-               (:file "matcher")
-               (:file "route-parser")
-               (:file "route")
-               (:file "packet")
-               (:file "helpers")))
+               (:file "test/matcher")
+               (:file "test/parser")
+               (:file "test/route")))

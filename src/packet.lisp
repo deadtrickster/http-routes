@@ -1,4 +1,4 @@
-(in-package :http-router.router)
+(in-package :http-routes)
 
 (defvar *route-table*)
 

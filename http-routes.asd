@@ -10,7 +10,8 @@
                (:file "src/matcher")
                (:file "src/route-parser")
                (:file "src/route")
-               (:file "src/packet")
-               (:file "src/helpers"))
+               ;; (:file "src/packet")
+               ;; (:file "src/helpers")
+               )
   ;; :long-description ""
   )
