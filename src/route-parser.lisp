@@ -93,7 +93,7 @@
 
 (defun parse-route (string)
   (collectors:with-collector-output (add-route-part)
-    (let ((state :literal)
+    (let ((state :literal-start)
           (current-literal-buffer)
           (current-parameter-buffer)
           (current-optional-buffer)

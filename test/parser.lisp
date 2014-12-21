@@ -4,6 +4,7 @@
 
 (test (parse-route-test :compile-at :definition-time)
   (is-true (equalp (http-routes.parser:parse-route "/orders") '("/orders")))
+  (is-true (equalp (http-routes.parser:parse-route "*path") '(&rest :path)))
   (is-true (equalp (http-routes.parser:parse-route "/orders/:order-id") '("/orders/" :order-id)))
   (is-true (equalp (http-routes.parser:parse-route "/orders/:order-id/type") '("/orders/" :order-id "/type")))
   (is-true (equalp (http-routes.parser:parse-route "/control(/*path)") '("/control" (&optional "/" &rest :path))))
@@ -13,6 +14,7 @@
                                                                                                          (&optional "/" &rest :rest))))
   (is-true (equalp (http-routes.parser:parse-route "/blog/*path") '("/blog/" &rest :path)))
   (is-true (equalp (http-routes.parser:parse-route "/client(/)*path") '("/client" (&optional "/") &rest :path)))
+  (is-true (equalp (http-routes.parser:parse-route "/client(/)(*path)") '("/client" (&optional "/") (&optional &rest :path))))
   (is-true (equalp (http-routes.parser:parse-route "/forum/:|topic-title|-:topic-id") '("/forum/" :topic-title "-" :topic-id))))
 
 (test (route-variables-test :compile-at :definition-time)
