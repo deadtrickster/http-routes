@@ -18,6 +18,7 @@
     (http-routes.routes:add-route "/client/(id):client-id" :client-with-maybe-old-id)
     (http-routes.routes:add-route "foo/*wildcard/bar" :wildcard-in-the-middle)
     (http-routes.routes:add-route "/blog(/)(*path)" :blog-with-index-and-path)
+    (http-routes.routes:add-route "/somewhat/(id:|sw|/)*rest" "/somewhat/(id:|sw|/)*rest")
 
     (route-match "/articles/some-article"
                  :simple-static-route nil)
@@ -43,5 +44,10 @@
     (route-match "/blog/"
                  :blog-with-index-and-path nil)    
     (route-match "/blog/loop-for-black-belts"
-                 :blog-with-index-and-path ((:path . "loop-for-black-belts")))))
+                 :blog-with-index-and-path ((:path . "loop-for-black-belts")))
+    (route-match "/somewhat/id23323/qweq"
+                 "/somewhat/(id:|sw|/)*rest" ((:sw . "23323")
+                                              (:rest "qweq")))
+    (route-match "/somewhat/23323/qweq"
+                 "/somewhat/(id:|sw|/)*rest" ((:rest "23323/qweq")))))
 

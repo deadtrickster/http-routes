@@ -9,14 +9,13 @@
                     (let ((parameters (make-hash-table)))
                       ,(if variables
                            `(let ((validp t))
-                              (loop for variable in ',variables
-                                    for match in matches do
+                              (loop  for match in matches do
                                        (let ((matched-str (cond
-                                                            ((integerp match)
-                                                             (subseq url match))
-                                                            ((listp match)
-                                                             (subseq url (first match) (second match))))))
-                                         (destructuring-bind (type name) variable
+                                                            ((= (length match) 2)
+                                                             (subseq url (second match)))
+                                                            ((= (length match) 3)
+                                                             (subseq url (second match) (third match))))))
+                                         (destructuring-bind (name . type) (assoc (first match) ',variables)
                                            (case type
                                              (:multi-segment
                                               (setf (gethash name parameters) matched-str))

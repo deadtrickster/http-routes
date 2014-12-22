@@ -138,19 +138,8 @@
                        (setf param-name-fenced nil)
                        (dispatch-cchar :advance nil)))
                     (:rest-name-start
-                     (go-state :rest-name))
-                    (:rest-name
-                     (if (eql #\/ cchar)
-                         (go-state :param-name-end :advance nil))
-                     (if (and param-name-fenced (eql #\| cchar))
-                         (go-state :param-name-end :advance t))
-                     (unless current-parameter-buffer
-                       (setf current-parameter-buffer (collectors:make-appender))
-                       (add-route-part '&rest)
-                       (if (eql #\| cchar)
-                           (setf param-name-fenced t)))
-                     (unless (eql #\| cchar)
-                       (funcall current-parameter-buffer cchar)))
+                     (add-route-part '&rest)
+                     (go-state :param-name))
                     (:literal-start
                      (if (literal-character-p cchar)
                          (go-state :literal :advance nil)
@@ -194,10 +183,10 @@
                  ((symbolp route-part)
                   (if next-is-rest
                       (progn
-                        (add-variable `(:multi-segment ,route-part))
+                        (add-variable `(,route-part . :multi-segment))
                         (setf next-is-rest nil))
                       (progn
-                        (add-variable `(:segment ,route-part)))))
+                        (add-variable `(,route-part . :segment)))))
                  ((and
                    (listp route-part)
                    (eq (first route-part) '&optional))
@@ -218,7 +207,7 @@
                  (let ((new-rules))
                    (loop for rule in rules do
                             (setf new-rules (if new-rules
-                                                (append new-rules (append rule (list part)))
+                                                (append new-rules (list (append rule (list part))))
                                                 (list (append rule (list part))))))
                    (setf rules new-rules)))))
         (loop for route-part in route do
@@ -228,7 +217,7 @@
                    ((and (symbolp route-part)
                          (not (eq '&rest route-part))
                          (not (eql '&optional route-part)))
-                    (add-rule-part :wildcard))
+                    (add-rule-part route-part))
                    ((and
                      (listp route-part)
                      (eq (first route-part) '&optional))

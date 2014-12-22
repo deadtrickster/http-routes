@@ -19,6 +19,7 @@
 
 (defstruct node
   (label)
+  (name)
   (children (make-hash-table :test 'node-label-equal))
   (parent)
   (tag))
@@ -62,11 +63,15 @@
 (defun add-to-tree (tree pattern tag)
   (let ((parent tree))
     (loop for i from 0 below (length pattern) do
-             (if-let ((node (gethash (aref pattern i) (node-children parent))))
+             (if-let ((node (gethash (if (symbolp (aref pattern i)) :wildcard (aref pattern i)) (node-children parent))))
                (setf parent node)
                (progn
                  (setf parent
-                       (setf (gethash (aref pattern i) (node-children parent)) (make-node :label (aref pattern i) :parent parent))))))
+                       (setf (gethash (if (symbolp (aref pattern i)) :wildcard (aref pattern i))
+                                      (node-children parent))
+                             (make-node :label (if (symbolp (aref pattern i)) :wildcard (aref pattern i))
+                                        :name (aref pattern i)
+                                        :parent parent))))))
     (setf (node-tag parent) tag)))
 
 (defun children-count (node)
@@ -77,15 +82,17 @@
 
 (defun sub-wildcard-helper (wildcard wildcard-pos sequence sequence-index indexies)
   (if (= (children-count wildcard) 0)
-      (values :wildcard (node-tag wildcard) (list wildcard-pos))
+      (progn
+        (values :wildcard (node-tag wildcard) `((,(node-name wildcard) ,wildcard-pos))))
       ;; try match constant part after wildcard
       ;; moving window
       (loop for i from sequence-index to (length sequence) do
                (if (= i (length sequence))
-                   (return (values :wildcard (node-tag wildcard) (list wildcard-pos)))
+                   (progn
+                     (return (values :wildcard (node-tag wildcard) `((,(node-name wildcard) ,wildcard-pos)))))
                    (multiple-value-bind (match tag indexies%) (match% wildcard sequence i nil nil nil)
                      (if match
-                         (return (values :wildcard tag (append `(,@indexies (,wildcard-pos ,i) ,@indexies%))))))))))
+                         (return (values :wildcard tag (append `(,@indexies (,(node-name wildcard) ,wildcard-pos ,i) ,@indexies%))))))))))
 
 (defun match% (node sequence sequence-index last-wildcard last-wildcard-pos indexies)
   (loop for i from sequence-index to (length sequence) do
