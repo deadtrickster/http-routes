@@ -47,7 +47,7 @@
                  :blog-with-index-and-path ((:path . "loop-for-black-belts")))
     (route-match "/somewhat/id23323/qweq"
                  "/somewhat/(id:|sw|/)*rest" ((:sw . "23323")
-                                              (:rest "qweq")))
+                                              (:rest . "qweq")))
     (route-match "/somewhat/23323/qweq"
-                 "/somewhat/(id:|sw|/)*rest" ((:rest "23323/qweq")))))
+                 "/somewhat/(id:|sw|/)*rest" ((:rest . "23323/qweq")))))
 
