@@ -29,6 +29,7 @@
            #:delete
            #:trace)
   (:export #:*route-table*
+           #:make-route-table
            #:attach-routes-packet
            #:define-routes
            #:reload-all-routes
@@ -44,4 +45,9 @@
            #:options
            #:connect
            #:patch
-           #:query))
+           #:query
+           #:route-method
+           #:route-path
+           #:route-handler
+           #:route-defaults
+           #:route-validators))
