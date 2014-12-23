@@ -73,7 +73,6 @@
     (multiple-value-bind (matched tag index) (http-routes.matcher:match root "orders/123/history/456")
       (is-true (eql matched :wildcard))
       (is-true (eql tag :order-id-history-item-id))
-      (print tag)
       (is-true (equalp index '((:order-id 7 10) (:item-id 19)))))
     (multiple-value-bind (matched tag index) (http-routes.matcher:match root "orders/123/history/456/name")
       (is-true (eql matched :wildcard))
