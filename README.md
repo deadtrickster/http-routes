@@ -9,7 +9,7 @@ Example route definitions
   ;;pages
   (get "/pages(/)" :handler "get pages")
   (post "/pages(/)" :handler "create new page")
-  (get "/pages/:page-id" :handler "get page")
+  (get "/pages/:page-id" :handler "get page" :name 'api-page-path)
   (delete "/pages/:page-id" :handler "delete page")
   (post "/pages/:page-id" :handler "update page"))
 
@@ -31,4 +31,6 @@ after attaching these routes:
 ```lisp
 (path-for 'admin-login-path)
 "/cms-admin/login"
+(path-for 'api-page-path '((:page-id . 123)))
+"/api/pages/123"
 ```
