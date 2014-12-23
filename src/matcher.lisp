@@ -20,7 +20,7 @@
 (defstruct node
   (label)
   (name)
-  (children (make-hash-table :test 'node-label-equal))
+  (children (make-hash-table :test 'eql))
   (parent)
   (tag))
 
