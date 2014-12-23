@@ -3,24 +3,23 @@
 (in-suite :http-routes.packet)
 
 (http-routes:define-routes :api  
-  (http-routes:section "/api"
-    ;;pages
-    (http-routes:get "/pages(/)" :handler "get pages")
-    (http-routes:post "/pages(/)" :handler "create new page")
-    (http-routes:get "/pages/:page-id" :handler "get page")
-    (http-routes:delete "/pages/:page-id" :handler "delete page")
-    (http-routes:post "/pages/:page-id" :handler "update page")))
+  ;;pages
+  (http-routes:get "/pages(/)" :handler "get pages")
+  (http-routes:post "/pages(/)" :handler "create new page")
+  (http-routes:get "/pages/:page-id" :handler "get page")
+  (http-routes:delete "/pages/:page-id" :handler "delete page")
+  (http-routes:post "/pages/:page-id" :handler "update page"))
 
-(http-routes:define-routes :admin
+(http-routes:define-routes :admin ;; this equal to (:admin "/admin")
   (include :api)
-  (http-routes:section "/admin"
-    ;;service stuff
-    (http-routes:get "/login" :handler "default admin login page")
-    (http-routes:post "/login" :handler "perform actual admin login")
-    (http-routes:get "/logout" :handler "admin logout")
-    (http-routes:get "(/)(*spa-path)" :handler "admin spa")))
+  ;;service stuff
+  (http-routes:get "/login" :handler "default admin login page")
+  (http-routes:post "/login" :handler "perform actual admin login")
+  (http-routes:get "/logout" :handler "admin logout")
+  ;;main route for our Single Page Application
+  (http-routes:get "(/)(*spa-path)" :handler "admin spa"))
 
-(http-routes:define-routes :site
+(http-routes:define-routes (:site "")
   (include :admin)
   (http-routes:get "/(*page-id)" :handler "render page" :defaults (alexandria:alist-hash-table '((:page-id . :latest))))
   (http-routes:get "/admin/login" :handler "site customized admin login page"))

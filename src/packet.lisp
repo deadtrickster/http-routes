@@ -25,18 +25,21 @@
    (defaults :accessor route-defaults :initarg :defaults)
    (validators :accessor route-validators :initarg :validators)))
 
-(defmethod attach-routes-packet (system)
+(defmethod attach-routes-packet (system &key section)
   (declare (ignore system))
   nil)
 
 (defmacro define-routes (name &body routes)
-  (let ((include-name (intern "INCLUDE" *package*)))
-    `(macrolet ((,include-name (packet-to-include)
-                  `(progn
-                     (attach-routes-packet ,packet-to-include))))
-       (defmethod attach-routes-packet ((system (eql ,name)))
-         (let ((*route-section* ""))
-           ,@routes)))))
+  (destructuring-bind (name section) (if (listp name)
+                                         name
+                                         (list name (concatenate 'string "/" (string-downcase (symbol-name name)))))
+    (let ((include-name (intern "INCLUDE" *package*)))
+      `(macrolet ((,include-name (packet-to-include)
+                    `(progn
+                       (attach-routes-packet ,packet-to-include))))
+         (defmethod attach-routes-packet ((system (eql ,name)) &key (section ,section))
+           (let ((*route-section* section))
+             ,@routes))))))
 
 (defmethod route-table-routes ((method (eql :get)))
   (slot-value *route-table* 'get))
@@ -151,11 +154,10 @@
 ;; example
 #|
 (define-routes :admin
-  (section "/admin"
-    (route "/login" :methods :post :handler 'do-login)
-    (route "/logout" :handler 'do-logout)))
+  (route "/login" :methods :post :handler 'do-login)
+  (route "/logout" :handler 'do-logout))
 
-(define-routes :my-app
+(define-routes (:my-app "")
   (include :admin)
   (route "/*path" :handler 'render-page)
   (route "/forum/:|topic-name|-:topic-id"))
