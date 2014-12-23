@@ -24,4 +24,24 @@
 ;;   (:use :cl :alexandria :split-sequence :parse-number))
 
 (defpackage http-routes
-  (:use :cl :alexandria :http-routes.routes))
+  (:use :cl :alexandria :http-routes.routes)
+  (:shadow #:get
+           #:delete
+           #:trace)
+  (:export #:*route-table*
+           #:attach-routes-packet
+           #:define-routes
+           #:reload-all-routes
+           #:root
+           #:section
+           #:add-route
+           #:get
+           #:head
+           #:post
+           #:put
+           #:delete
+           #:trace
+           #:options
+           #:connect
+           #:patch
+           #:query))
