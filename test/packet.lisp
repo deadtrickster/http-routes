@@ -20,9 +20,9 @@
   (http-routes:get "(/)(*spa-path)" :handler "admin spa"))
 
 (http-routes:define-routes (:site "")
-  (include :admin)
+  (include :admin :section "/secure-admin")
   (http-routes:get "/(*page-id)" :handler "render page" :defaults (alexandria:alist-hash-table '((:page-id . :latest))))
-  (http-routes:get "/admin/login" :handler "site customized admin login page"))
+  (http-routes:get "/secure-admin/login" :handler "site customized admin login page"))
 
 (defmacro test-url-success (method url handler parameters)
   `(multiple-value-bind (route parameters) (http-routes:query ,method ,url)
@@ -52,20 +52,20 @@
     (test-url-success :get "/"
                       "render page" ((:page-id . :latest)))
     
-    (test-url-success :get "/admin/login"
+    (test-url-success :get "/secure-admin/login"
                       "site customized admin login page" nil)
     
-    (test-url-success :get "/admin/logout"
+    (test-url-success :get "/secure-admin/logout"
                       "admin logout" nil)
 
-    (test-url-success :post "/admin/login"
+    (test-url-success :post "/secure-admin/login"
                       "perform actual admin login" nil)
 
-    (test-url-success :get "/admin"
+    (test-url-success :get "/secure-admin"
                       "admin spa" nil)
-    (test-url-success :get "/admin/"
+    (test-url-success :get "/secure-admin/"
                       "admin spa" nil)
-    (test-url-success :get "/admin/pages"
+    (test-url-success :get "/secure-admin/pages"
                       "admin spa" ((:spa-path . "pages")))
 
     (test-url-success :get "/api/pages"

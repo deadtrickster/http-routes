@@ -34,9 +34,10 @@
                                          name
                                          (list name (concatenate 'string "/" (string-downcase (symbol-name name)))))
     (let ((include-name (intern "INCLUDE" *package*)))
-      `(macrolet ((,include-name (packet-to-include)
-                    `(progn
-                       (attach-routes-packet ,packet-to-include))))
+      `(macrolet ((,include-name (packet-to-include &key (section nil section-supplied-p))
+                    (if section-supplied-p
+                       `(attach-routes-packet ,packet-to-include :section ,section)
+                       `(attach-routes-packet ,packet-to-include))))
          (defmethod attach-routes-packet ((system (eql ,name)) &key (section ,section))
            (let ((*route-section* section))
              ,@routes))))))
