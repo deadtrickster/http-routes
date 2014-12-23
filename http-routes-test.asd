@@ -9,4 +9,5 @@
   :components ((:file "test/package")
                (:file "test/matcher")
                (:file "test/parser")
-               (:file "test/route")))
+               (:file "test/route")
+               (:file "test/packet")))

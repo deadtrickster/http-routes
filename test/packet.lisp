@@ -6,18 +6,18 @@
   ;;pages
   (http-routes:get "/pages(/)" :handler "get pages")
   (http-routes:post "/pages(/)" :handler "create new page")
-  (http-routes:get "/pages/:page-id" :handler "get page")
+  (http-routes:get "/pages/:page-id" :handler "get page" :name :api-page-path)
   (http-routes:delete "/pages/:page-id" :handler "delete page")
   (http-routes:post "/pages/:page-id" :handler "update page"))
 
 (http-routes:define-routes :admin ;; this equal to (:admin "/admin")
   (include :api)
   ;;service stuff
-  (http-routes:get "/login" :handler "default admin login page")
+  (http-routes:get "/login" :handler "default admin login page" :name :admin-login-path)
   (http-routes:post "/login" :handler "perform actual admin login")
   (http-routes:get "/logout" :handler "admin logout")
   ;;main route for our Single Page Application
-  (http-routes:get "(/)(*spa-path)" :handler "admin spa"))
+  (http-routes:get "(/)(*spa-path)" :handler "admin spa" :name :admin-spa-path))
 
 (http-routes:define-routes (:site "")
   (include :admin :section "/secure-admin")
@@ -86,4 +86,8 @@
                       "delete page" ((:page-id . "123")))
 
     (test-url-success :post "/api/pages/123"
-                      "update page" ((:page-id . "123")))))
+                      "update page" ((:page-id . "123")))
+    
+    (is-true (http-routes:path-for :api-page-path '((:page-id . 123))) "/api/page/123")
+    (is-true (http-routes:path-for :admin-login-path) "/secure-admin/login")
+    (is-true (http-routes:path-for :admin-spa-path '((:spa-path . "/pages"))) "/secure-admin/pages")))
