@@ -16,7 +16,7 @@ Example route definitions
 (define-routes :admin ;; this equal to (:admin "/admin")
   (include :api)
   ;;service stuff
-  (get "/login" :handler "default admin login page" :As 'admin-login-path)
+  (get "/login" :handler "default admin login page" :name 'admin-login-path)
   (post "/login" :handler "perform actual admin login")
   (get "/logout" :handler "admin logout")
   ;;main route for our Single Page Application
@@ -29,6 +29,6 @@ Example route definitions
 ```
 after attaching these routes:
 ```lisp
-(admin-login-path)
+(path-for 'admin-login-path)
 "/cms-admin/login"
 ```
