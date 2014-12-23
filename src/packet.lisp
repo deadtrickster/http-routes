@@ -15,6 +15,9 @@
    (connect :initform (http-routes.matcher::make-node))
    (patch :initform (http-routes.matcher::make-node))))
 
+(defun make-route-table ()
+  (make-instance 'route-table))
+
 (defclass route ()
   ((methods :accessor route-method :initarg :methods)
    (path :accessor route-path :initarg :path)
