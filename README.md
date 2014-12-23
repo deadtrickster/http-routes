@@ -6,26 +6,24 @@ Example route definitions
 
 ```lisp
 (define-routes :api  
-  (section "/api"
-    ;;pages
-    (get "/pages(/)" :handler "get pages")
-    (post "/pages(/)" :handler "create new page")
-    (get "/pages/:page-id" :handler "get page")
-    (delete "/pages/:page-id" :handler "delete page")
-    (post "/pages/:page-id" :handler "update page")))
+  ;;pages
+  (get "/pages(/)" :handler "get pages")
+  (post "/pages(/)" :handler "create new page")
+  (get "/pages/:page-id" :handler "get page")
+  (delete "/pages/:page-id" :handler "delete page")
+  (post "/pages/:page-id" :handler "update page"))
 
-(define-routes :admin
+(define-routes :admin ;; this equal to (:admin "/admin")
   (include :api)
-  (section "/admin"
-    ;;service stuff
-    (get "/login" :handler "default admin login page")
-    (post "/login" :handler "perform actual admin login")
-    (get "/logout" :handler "admin logout")
-    ;;main route for our Single Page Application
-    (get "(/)(*spa-path)" :handler "admin spa")))
+  ;;service stuff
+  (get "/login" :handler "default admin login page")
+  (post "/login" :handler "perform actual admin login")
+  (get "/logout" :handler "admin logout")
+  ;;main route for our Single Page Application
+  (get "(/)(*spa-path)" :handler "admin spa"))
 
-(define-routes :site
-  (include :admin)
+(define-routes (:site "")
+  (include :admin :section "/secure-admin")
   (get "/(*page-id)" :handler "render page" :defaults (alist-hash-table '((:page-id . :latest))))
-  (get "/admin/login" :handler "site customized admin login page"))
+  (get "/secure-admin/login" :handler "site customized admin login page"))
 ```
