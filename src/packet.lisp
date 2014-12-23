@@ -13,20 +13,39 @@
    (trace :initform (http-routes.matcher::make-node))
    (options :initform (http-routes.matcher::make-node))
    (connect :initform (http-routes.matcher::make-node))
-   (patch :initform (http-routes.matcher::make-node))))
+   (patch :initform (http-routes.matcher::make-node))
+   (named-routes :initform (make-hash-table))))
 
 (defun make-route-table ()
   (make-instance 'route-table))
 
+(defun named-routes ()
+  (slot-value *route-table* 'named-routes))
+
+(defun get-named-route (name)
+  (gethash name (named-routes)))
+
+(defun add-named-route (name route)
+  (if (get-named-route name)
+      (error "Route with name ~a already attached" name)
+      (setf (gethash name (named-routes)) route)))
+
 (defclass route ()
-  ((methods :accessor route-method :initarg :methods)
-   (path :accessor route-path :initarg :path)
-   (handler :accessor route-handler :initarg :handler)
-   (defaults :accessor route-defaults :initarg :defaults)
-   (validators :accessor route-validators :initarg :validators)))
+  ((methods :reader route-method :initarg :methods)
+   (path :reader route-path :initarg :path)
+   (handler :reader route-handler :initarg :handler)
+   (defaults :reader route-defaults :initarg :defaults)
+   (validators :reader route-validators :initarg :validators)
+   (path-generator :reader route-path-generator :initarg :path-generator)))
+
+(defun path-for (name-or-route &optional args)
+  (let ((route (if (typep name-or-route 'route) name-or-route (get-named-route name-or-route))))
+    (unless route
+      (error "Unable to find named route ~a in current route table" name-or-route))
+    (funcall (route-path-generator route) args)))
 
 (defmethod attach-routes-packet (system &key section)
-  (declare (ignore system))
+  (declare (ignore system section))
   nil)
 
 (defmacro define-routes (name &body routes)
@@ -36,8 +55,8 @@
     (let ((include-name (intern "INCLUDE" *package*)))
       `(macrolet ((,include-name (packet-to-include &key (section nil section-supplied-p))
                     (if section-supplied-p
-                       `(attach-routes-packet ,packet-to-include :section ,section)
-                       `(attach-routes-packet ,packet-to-include))))
+                        `(attach-routes-packet ,packet-to-include :section ,section)
+                        `(attach-routes-packet ,packet-to-include))))
          (defmethod attach-routes-packet ((system (eql ,name)) &key (section ,section))
            (let ((*route-section* section))
              ,@routes))))))
@@ -63,7 +82,7 @@
   (let ((*routes* routes))
     (http-routes.routes:add-route path route)))
 
-(defun add-route% (path handler methods defaults validators)
+(defun add-route% (path handler methods defaults validators path-generator)
   (unless methods
     (setf methods '(:get)))
   (let ((route (make-instance 'route
@@ -71,55 +90,81 @@
                               :handler handler
                               :path path
                               :defaults defaults
-                              :validators validators)))
+                              :validators validators
+                              :path-generator path-generator)))
     (loop for method in methods
           as routes = (route-table-routes method) do
-          (add-route-to-routes routes path route))))
+             (add-route-to-routes routes path route))
+    route))
 
-(defmacro route (uri &key handler methods as defaults validators)
-  (let ((path-function (if as
-                           `(setf (symbol-function ',as)
-                                  (lambda () ;; just return path for now
-                                    path))))) 
-    `(let ((path (concatenate 'string *route-section* ,uri)))
-       (add-route% path ,handler ,methods  ,defaults ,validators)
-       ,path-function)))
+(defun create-path-generator (fname route)
+  (let* ((parsed-route (http-routes.parser:parse-route route))
+         (variables (http-routes.parser:route-variables parsed-route))
+         (rules (http-routes.parser:route-to-match-rules parsed-route)))
+    (compile nil `(lambda (vars)
+                    (flet ((find-rule-for-vars (vars)
+                             (loop for rule in ',rules do
+                                      (if (= (length vars) (count-if (lambda (item) (symbolp item)) rule))
+                                          (return rule))))
+                           (validate-vars (vars)
+                             (loop for (name . values) in vars do
+                                      (unless (assoc name ',variables)
+                                        (error "Unknown variable ~a for route ~a" name ',fname)))))
+                      (validate-vars vars)
+                      (let ((rule (find-rule-for-vars vars)))
+                        (unless rule
+                          (error "Unable to find rule"))
+                        (with-output-to-string (stream)
+                          (loop for item in rule do
+                                   (if (symbolp item)
+                                       (alexandria:if-let ((value (alexandria:assoc-value vars item)))
+                                         (princ value stream)
+                                         (error "unable to find value for ~a" item))
+                                       (princ item stream))))))))))
 
-(defun get (uri &key handler as defaults validators)
-  (route uri :handler handler :methods '(:get) :as as :defaults defaults :validators validators))
+(defmacro route (uri &key handler methods name defaults validators)
+  `(let* ((path (concatenate 'string *route-section* ,uri))
+          (path-generator (if ,name (create-path-generator ,name path))))
+     (let ((route (add-route% path ,handler ,methods  ,defaults ,validators (if ,name path-generator nil))))
+       (if ,name
+            (add-named-route ,name route))
+       route)))
 
-(defun head (uri &key handler as defaults validators)
-  (route uri :handler handler :methods '(:head) :as as :defaults defaults :validators validators))
+(defun get (uri &key handler name defaults validators)
+  (route uri :handler handler :methods '(:get) :name name :defaults defaults :validators validators))
 
-(defun post (uri &key handler as defaults validators)
-  (route uri :handler handler :methods '(:post) :as as :defaults defaults :validators validators))
+(defun head (uri &key handler name defaults validators)
+  (route uri :handler handler :methods '(:head) :name name :defaults defaults :validators validators))
 
-(defun put (uri &key handler as defaults validators)
-  (route uri :handler handler :methods '(:put) :as as :defaults defaults :validators validators))
+(defun post (uri &key handler name defaults validators)
+  (route uri :handler handler :methods '(:post) :name name :defaults defaults :validators validators))
 
-(defun delete (uri &key handler as defaults validators)
-  (route uri :handler handler :methods '(:delete) :as as :defaults defaults :validators validators))
+(defun put (uri &key handler name defaults validators)
+  (route uri :handler handler :methods '(:put) :name name :defaults defaults :validators validators))
 
-(defun trace (uri &key handler as defaults validators)
-  (route uri :handler handler :methods '(:trace) :as as :defaults defaults :validators validators))
+(defun delete (uri &key handler name defaults validators)
+  (route uri :handler handler :methods '(:delete) :name name :defaults defaults :validators validators))
 
-(defun options (uri &key handler as defaults validators)
-  (route uri :handler handler :methods '(:options) :as as :defaults defaults :validators validators))
+(defun trace (uri &key handler name defaults validators)
+  (route uri :handler handler :methods '(:trace) :name name :defaults defaults :validators validators))
 
-(defun connect (uri &key handler as defaults validators)
-  (route uri :handler handler :methods '(:connect) :as as :defaults defaults :validators validators))
+(defun options (uri &key handler name defaults validators)
+  (route uri :handler handler :methods '(:options) :name name :defaults defaults :validators validators))
 
-(defun patch (uri &key handler as defaults validators)
-  (route uri :handler handler :methods '(:patch) :as as :defaults defaults :validators validators))
+(defun connect (uri &key handler name defaults validators)
+  (route uri :handler handler :methods '(:connect) :name name :defaults defaults :validators validators))
+
+(defun patch (uri &key handler name defaults validators)
+  (route uri :handler handler :methods '(:patch) :name name :defaults defaults :validators validators))
 
 
-(defmacro root (&key handler as)
-  `(route "/" :to ,handler :as ,as))
+(defmacro root (&key handler name)
+  `(route "/" :to ,handler :name ,name))
 
 (defmacro section (sub-path &body routes)
   `(let ((*route-section* (if *route-section*
                               (concatenate 'string *route-section* ,sub-path)
-                               ,sub-path)))
+                              ,sub-path)))
      ,@routes))
 
 ;; (defun attach-all-routes (system)

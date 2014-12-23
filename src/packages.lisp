@@ -30,6 +30,8 @@
            #:trace)
   (:export #:*route-table*
            #:make-route-table
+           #:named-routes
+           #:get-named-route
            #:attach-routes-packet
            #:define-routes
            #:reload-all-routes
@@ -50,4 +52,6 @@
            #:route-path
            #:route-handler
            #:route-defaults
-           #:route-validators))
+           #:route-validators
+           #:route-path-generator
+           #:path-for))
