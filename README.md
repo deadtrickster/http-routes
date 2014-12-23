@@ -16,14 +16,19 @@ Example route definitions
 (define-routes :admin ;; this equal to (:admin "/admin")
   (include :api)
   ;;service stuff
-  (get "/login" :handler "default admin login page")
+  (get "/login" :handler "default admin login page" :As 'admin-login-path)
   (post "/login" :handler "perform actual admin login")
   (get "/logout" :handler "admin logout")
   ;;main route for our Single Page Application
   (get "(/)(*spa-path)" :handler "admin spa"))
 
 (define-routes (:site "")
-  (include :admin :section "/secure-admin")
+  (include :admin :section "/cms-admin")
   (get "/(*page-id)" :handler "render page" :defaults (alist-hash-table '((:page-id . :latest))))
-  (get "/secure-admin/login" :handler "site customized admin login page"))
+  (get "/cms-admin/login" :handler "site customized admin login page"))
+```
+after attaching these routes:
+```lisp
+(admin-login-path)
+"/cms-admin/login"
 ```
