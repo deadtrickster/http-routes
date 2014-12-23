@@ -19,3 +19,6 @@
 (def-suite :http-routes.route :in :http-routes
   :description "HTTP-ROUTES full cycle tests,
 from adding routes to matching and extracting variable values")
+
+(def-suite :http-routes.packet :in :http-routes
+  :description "HTTP-ROUTES interface tests")
