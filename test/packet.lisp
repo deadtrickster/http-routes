@@ -67,6 +67,8 @@
                       "admin spa" nil)
     (test-url-success :get "/secure-admin/pages"
                       "admin spa" ((:spa-path . "pages")))
+    (test-url-success :get "/secure-admin/log"
+                      "admin spa" ((:spa-path . "log")))
 
     (test-url-success :get "/api/pages"
                       "get pages" nil)

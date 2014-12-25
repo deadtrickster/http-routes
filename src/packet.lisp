@@ -163,7 +163,6 @@
 ;;              (attach-system-routes dep))))
 
 (defun reload-all-routes (system-name)
-  (setf *route-table* (make-instance 'route-table))
   (attach-routes-packet system-name))
 
 (defun merge-hash-tables (&rest hash-tables)

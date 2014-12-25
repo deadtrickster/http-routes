@@ -49,15 +49,17 @@
   pattern-index)
 
 (defun create-pattern (source)
-  (if (stringp source)
-      source
-      (if (= 1 (length source))
-          (create-pattern (first source))
-          (let ((pattern (make-array (result-pattern-length source)))
-                (pattern-index 0))
-            (loop for source-part in source do
-                     (setf pattern-index (copy-source-part-to-pattern pattern pattern-index source-part)))
-            pattern))))
+  (cond ((stringp source)
+         source)
+        ((symbolp source)
+         (make-array 1 :initial-element source))
+        (t (if (= 1 (length source))
+               (create-pattern (first source))
+               (let ((pattern (make-array (result-pattern-length source)))
+                     (pattern-index 0))
+                 (loop for source-part in source do
+                          (setf pattern-index (copy-source-part-to-pattern pattern pattern-index source-part)))
+                 pattern)))))
 
 
 (defun add-to-tree (tree pattern tag)
@@ -97,7 +99,11 @@
 (defun match% (node sequence sequence-index last-wildcard last-wildcard-pos indexies)
   (loop for i from sequence-index to (length sequence) do
            (if (= i (length sequence))
-               (return (values t (node-tag node)))
+               (if (node-tag node)
+                   (return (values t (node-tag node)))
+                   (if last-wildcard
+                       (return (values :wildcard (node-tag last-wildcard) `((,(node-name last-wildcard) ,last-wildcard-pos))))                       
+                       (return (values t (node-tag node)))))
                (progn
                  (when-let ((new-last-wildcard (children-find node :wildcard)))
                    (setf last-wildcard new-last-wildcard
