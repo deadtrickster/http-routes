@@ -14,7 +14,7 @@
            #:route-to-match-rules))
 
 (defpackage http-routes.routes
-  (:use :cl :alexandria :http-routes.parser :Http-routes.matcher)
+  (:use :cl :alexandria :http-routes.parser :http-routes.matcher)
   (:export #:make-routes
            #:add-route
            #:try-match-url

@@ -79,7 +79,7 @@
                               :methods methods
                               :handler handler
                               :path path
-                              :defaults defaults
+                              :defaults (if (hash-table-p defaults) defaults (alexandria:alist-hash-table defaults))
                               :validators validators
                               :path-generator path-generator)))
     (loop for method in methods
