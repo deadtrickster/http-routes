@@ -30,4 +30,4 @@ before_script:
   # - echo "(defsystem :dummy-cl-travis-system)" > ~/lisp/dummy-cl-travis-system.asd
 
 script:
-  - cl -e '(ql:quickload :http-routes-test) (let ((results (5am:run :http-routes))) (unless (5am:results-status results) (uiop:quit 1)))'
+  - cl -e '(ql:quickload :http-routes-test) (let ((results (coveralls:with-coveralls(:exclude "test")(5am:run :http-routes)))) (unless (5am:results-status results) (uiop:quit 1)))'

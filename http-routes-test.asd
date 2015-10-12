@@ -4,7 +4,7 @@
   :maintainer "Ilya Khaprov <ilya.khaprov@publitechs.com>"
   :author "Ilya Khaprov <ilya.khaprov@publitechs.com>"
   :licence "MIT"
-  :depends-on (:fiveam :http-routes)
+  :depends-on (:fiveam :http-routes :cl-coveralls)
   :serial t
   :components ((:file "test/package")
                (:file "test/matcher")
