@@ -13,7 +13,7 @@ Example route definitions
   (delete "/pages/:page-id" :handler "delete page")
   (post "/pages/:page-id" :handler "update page"))
 
-(define-routes :admin ;; this equal to (:admin "/admin")
+(define-routes :admin ;; this equals to (:admin "/admin")
   (include :api)
   ;;service stuff
   (get "/login" :handler "default admin login page" :name 'admin-login-path)
