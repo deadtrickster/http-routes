@@ -1,6 +1,6 @@
 http-routes  [![Build Status](https://travis-ci.org/deadtrickster/http-routes.svg?branch=master)](https://travis-ci.org/deadtrickster/http-routes) [![Coverage Status](https://coveralls.io/repos/deadtrickster/http-routes/badge.svg?branch=master&service=github)](https://coveralls.io/github/deadtrickster/http-routes?branch=master)
 ===========
-An attempt to create capabale http(url) routes lib without regexps, very early stage, 
+An attempt to create capable http(url) routes lib without regexps, very early stage, 
 
 Example route definitions
 
